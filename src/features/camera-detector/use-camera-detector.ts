@@ -1,33 +1,29 @@
 import { useRef, useEffect } from 'react';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
-
-const predictionsThings = [
-  "person",
-  "cat",
-  "dog",
-  "car",
-  "bicycle",
-  "motorcycle",
-  "bus",
-  "truck"
-]
+import { TIMEOUT } from '../../utils/constants/timeout';
+import { predictionsThings } from '../../utils/constants/predictions';
+import { PredictionQueue } from './camera-detector.types';
 
 const useCameraDetector = () => {
   const webcamRef = useRef(null) as any;
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    Notification.requestPermission()
+
     const runDetection = async () => {
       const net = await cocoSsd.load();
+      const predictionsQueue: PredictionQueue[] = []
       setInterval(() => {
-        detect(net);
+        detect(net, predictionsQueue);
       }, 1000);
     };
 
     runDetection();
   }, []);
 
-  const detect = async (net: any) => {
+
+  const detect = async (net: any, predictionsQueue: PredictionQueue[]) => {
     if (webcamRef.current) {
       const image = webcamRef.current.getScreenshot();
       const video = webcamRef.current.video;
@@ -43,6 +39,21 @@ const useCameraDetector = () => {
 
       predictions.forEach((prediction: any) => {
         if (predictionsThings.includes(prediction.class)) {
+          if (!predictionsQueue.some(pred => pred.name === prediction.class)) {
+            const newPrediction: PredictionQueue = {
+              name: prediction.class,
+              timeout: TIMEOUT
+            }
+
+            new Notification(`${prediction.class} was detected on camera.`)
+            predictionsQueue.push(newPrediction)
+
+            setTimeout(() => {
+              const predictionIndex = predictionsQueue.findIndex(pred => pred.name === prediction.class)
+              predictionsQueue.splice(predictionIndex, 1)
+            }, TIMEOUT)
+          }
+
           const [x, y, width, height] = prediction.bbox;
           context.beginPath();
           context.rect(x, y, width, height);
