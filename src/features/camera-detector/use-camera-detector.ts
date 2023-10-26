@@ -62,7 +62,7 @@ const useCameraDetector = () => {
           context.fillStyle = 'red';
           context.stroke();
           context.closePath();
-          context.fillText(prediction.class, x, y - 5);
+          context.fillText(prediction.class.toUpperCase(), x, y - 5);
         }
       });
     }
