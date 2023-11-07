@@ -25,7 +25,7 @@ const useCameraDetector = () => {
 
   const detect = async (net: any, predictionsQueue: PredictionQueue[]) => {
     if (webcamRef.current) {
-      const image = webcamRef.current.getScreenshot();
+      // const image = webcamRef.current.getScreenshot();
       const video = webcamRef.current.video;
       const canvas = canvasRef.current as any;
       canvas.width = video.width;
