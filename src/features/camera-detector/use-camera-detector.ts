@@ -21,7 +21,7 @@ const useCameraDetector = () => {
       const net = await cocoSsd.load();
       setInterval(() => {
         detect(net);
-      }, 1000);
+      }, 10);
     };
 
     runDetection();
@@ -43,6 +43,7 @@ const useCameraDetector = () => {
 
       predictions.forEach((prediction: any) => {
         if (predictionsThings.includes(prediction.class)) {
+          setTimeout(() => alert("person found"), 2000)
           const [x, y, width, height] = prediction.bbox;
           context.beginPath();
           context.rect(x, y, width, height);
